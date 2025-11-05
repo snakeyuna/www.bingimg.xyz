@@ -10,7 +10,7 @@
 
 下载后可以直接部署在服务器
 
-![Image text][(https://github.com/snakeyuna/www.bingimg.xyz/blob/4422fcb238b4e9dadc5e053d488166397a8dd152/img/1.png)]
+![Image text](https://github.com/snakeyuna/www.bingimg.xyz/blob/4422fcb238b4e9dadc5e053d488166397a8dd152/img/1.png)
 
 
 
