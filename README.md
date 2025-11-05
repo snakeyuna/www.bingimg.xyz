@@ -10,4 +10,3 @@
 
 下载后可以直接部署在服务器
 
-![Uploading FireShot Capture 001 - Bing每日一图 中国区 - [www.bingimg.xyz].png…]()
