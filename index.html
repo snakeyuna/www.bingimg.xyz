@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bing每日一图 中国区</title>
+    <!-- 添加网站图标 -->
+    <!-- 原有的在线路径引用（保留作为说明） -->
+    <!-- <link rel="icon" href="https://cn.bing.com/favicon.ico" type="image/x-icon"> -->
+    <!-- <link rel="shortcut icon" href="https://cn.bing.com/favicon.ico" type="image/x-icon"> -->
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"> -->
+    
+    <!-- 修改后的本地路径引用（当前使用） -->
+    <link rel="icon" href="./favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="./favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="./css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 25px;
+            background: linear-gradient(135deg, #1e5799 0%, #207cca 100%);
+            color: white;
+            border-radius: 12px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+            z-index: 1;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 2;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .description {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 2;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .date-selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin: 20px 0 30px;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .date-btn {
+            padding: 10px 18px;
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+        
+        .date-btn:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .date-btn.active {
+            background-color: white;
+            color: #1e5799;
+            border-color: white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            font-size: 1.3rem;
+            color: #666;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(30, 87, 153, 0.2);
+            border-radius: 50%;
+            border-top-color: #1e5799;
+            animation: spin 1s ease-in-out infinite;
+            margin-bottom: 20px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-bottom: 40px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+        
+        .content.loaded {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .image-section {
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        .image-container {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            background-color: #fff;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .image-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .image-container img {
+            width: 100%;
+            height: auto;
+            display: block;
+            transition: transform 0.5s ease;
+        }
+        
+        .image-container:hover img {
+            transform: scale(1.05);
+        }
+        
+        .image-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%);
+            color: white;
+            padding: 20px;
+        }
+        
+        .image-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .image-copyright {
+            font-size: 0.95rem;
+            opacity: 0.9;
+        }
+        
+        .info-section {
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        .info-card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+            height: 100%;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .info-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .info-card h2 {
+            color: #1e5799;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .info-card h2 i {
+            font-size: 1.4rem;
+        }
+        
+        .info-item {
+            margin-bottom: 18px;
+            display: flex;
+            align-items: flex-start;
+            padding: 10px;
+            border-radius: 8px;
+            transition: background-color 0.2s;
+        }
+        
+        .info-item:hover {
+            background-color: #f8fafc;
+        }
+        
+        .info-label {
+            font-weight: bold;
+            min-width: 120px;
+            color: #555;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .info-value {
+            flex: 1;
+            word-break: break-all;
+        }
+        
+        .api-info {
+            background-color: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            transition: all 0.3s ease;
+        }
+        
+        .api-info h2 {
+            color: #1e5799;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .json-container {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            transition: all 0.3s ease;
+        }
+        
+        .actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 25px;
+            background-color: #1e5799;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            box-shadow: 0 4px 6px rgba(30, 87, 153, 0.2);
+        }
+        
+        .btn:hover {
+            background-color: #154273;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn-secondary {
+            background-color: #6c757d;
+            box-shadow: 0 4px 6px rgba(108, 117, 125, 0.2);
+        }
+        
+        .btn-secondary:hover {
+            background-color: #545b62;
+        }
+        
+        .btn-success {
+            background-color: #28a745;
+            box-shadow: 0 4px 6px rgba(40, 167, 69, 0.2);
+        }
+        
+        .btn-success:hover {
+            background-color: #218838;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            color: #6c757d;
+            font-size: 0.95rem;
+            border-top: 1px solid #e9ecef;
+        }
+        
+        .footer-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .footer-links {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        
+        .footer-link {
+            display: flex;
+            align-items: center;
+            color: #6c757d;
+            text-decoration: none;
+            transition: color 0.3s;
+            font-size: 0.9rem;
+        }
+        
+        .footer-link:hover {
+            color: #1e5799;
+        }
+        
+        .footer-icon {
+            width: 16px;
+            height: 16px;
+            margin-right: 5px;
+        }
+        
+        .error-message {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            border-left: 5px solid #dc3545;
+        }
+        
+        .debug-info {
+            background-color: #e2f0ff;
+            color: #004085;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            white-space: pre-wrap;
+            display: none;
+            border-left: 5px solid #1e5799;
+        }
+        
+        .success-message {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            border-left: 5px solid #28a745;
+            display: none;
+        }
+        
+        .image-resolution {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .resolution-btn {
+            padding: 6px 12px;
+            background-color: #e9ecef;
+            border: none;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .resolution-btn:hover {
+            background-color: #dee2e6;
+        }
+        
+        .resolution-btn.active {
+            background-color: #1e5799;
+            color: white;
+        }
+        
+        .current-date {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #1e5799;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px;
+            background-color: rgba(30, 87, 153, 0.1);
+            border-radius: 8px;
+        }
+        
+        @media (max-width: 768px) {
+            .content {
+                flex-direction: column;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .date-selector {
+                gap: 8px;
+            }
+            
+            .date-btn {
+                padding: 8px 12px;
+                font-size: 0.9rem;
+            }
+            
+            .actions {
+                justify-content: center;
+            }
+            
+            .footer-links {
+                flex-direction: column;
+                gap: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-images"></i> Bing每日一图 中国区</h1>
+            <p class="description">探索来自Bing的今日及过去7天的精彩壁纸</p>
+            
+            <div class="date-selector">
+                <button class="date-btn active" data-days="0">今天</button>
+                <button class="date-btn" data-days="1">昨天</button>
+                <button class="date-btn" data-days="2">前天</button>
+                <button class="date-btn" data-days="3">3天前</button>
+                <button class="date-btn" data-days="4">4天前</button>
+                <button class="date-btn" data-days="5">5天前</button>
+                <button class="date-btn" data-days="6">6天前</button>
+                <button class="date-btn" data-days="7">7天前</button>
+            </div>
+        </header>
+        
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            正在获取Bing壁纸数据...
+        </div>
+        
+        <div id="successMessage" class="success-message">
+            <i class="fas fa-check-circle"></i> 成功获取Bing壁纸数据！
+        </div>
+        
+        <div id="errorMessage" class="error-message" style="display: none;">
+            <!-- 错误信息将在这里显示 -->
+        </div>
+        
+        <div id="debugInfo" class="debug-info">
+            <!-- 调试信息将在这里显示 -->
+        </div>
+        
+        <div id="content" class="content">
+            <div class="image-section">
+                <div class="current-date">
+                    <i class="fas fa-calendar-day"></i>
+                    <span id="currentDateDisplay">正在加载日期信息...</span>
+                </div>
+                
+                <div class="image-container">
+                    <img id="bingImage" src="" alt="Bing每日壁纸">
+                    <div class="image-overlay">
+                        <div class="image-title" id="imageTitle">加载中...</div>
+                        <div class="image-copyright" id="imageCopyright">加载中...</div>
+                    </div>
+                </div>
+                
+                <div class="image-resolution">
+                    <button class="resolution-btn active" data-resolution="UHD">超高清 (UHD)</button>
+                    <button class="resolution-btn" data-resolution="1920x1080">全高清 (1080P)</button>
+                    <button class="resolution-btn" data-resolution="1080x1920">竖版全高清 (1080P)</button>
+                    <button class="resolution-btn" data-resolution="1366x768">高清 (720P)</button>
+                </div>
+                
+                <div class="actions">
+                    <a href="#" class="btn" id="viewImageBtn" target="_blank">
+                        <i class="fas fa-external-link-alt"></i> 查看原图
+                    </a>
+                    <button class="btn btn-secondary" id="showJsonBtn">
+                        <i class="fas fa-code"></i> 显示API数据
+                    </button>
+                    <button class="btn btn-success" id="downloadBtn">
+                        <i class="fas fa-download"></i> 下载壁纸
+                    </button>
+                </div>
+            </div>
+            
+            <div class="info-section">
+                <div class="info-card">
+                    <h2><i class="fas fa-info-circle"></i> 壁纸信息</h2>
+                    <div class="info-item">
+                        <div class="info-label"><i class="fas fa-heading"></i> 标题:</div>
+                        <div class="info-value" id="infoTitle">加载中...</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label"><i class="fas fa-calendar-alt"></i> 日期:</div>
+                        <div class="info-value" id="infoDate">加载中...</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label"><i class="fas fa-copyright"></i> 版权:</div>
+                        <div class="info-value" id="infoCopyright">加载中...</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label"><i class="fas fa-align-left"></i> 描述:</div>
+                        <div class="info-value" id="infoDesc">加载中...</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label"><i class="fas fa-link"></i> 图片URL:</div>
+                        <div class="info-value" id="infoUrl">加载中...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="api-info" id="apiInfo" style="display: none;">
+            <h2><i class="fas fa-database"></i> API返回的原始JSON数据</h2>
+            <div class="json-container" id="jsonData">
+                <!-- JSON数据将在这里显示 -->
+            </div>
+        </div>
+        
+        <footer>
+            <div class="footer-content">
+                <p>本页面数据来源于 Bing 每日壁纸 API | 通过PHP代理获取 | 仅用于学习和演示目的</p>
+                <p>© 2025 Bing壁纸历史查看器 | 支持查看过去7天壁纸</p>
+                
+                <div class="footer-links">
+                    <a href="https://beian.mps.gov.cn/#/query/webSearch?code=14010802080380" target="_blank" class="footer-link">
+                        <img src="icon.png" alt="网安图标" class="footer-icon">
+                        晋公网安备14010802080380
+                    </a>
+                    <a href="https://beian.miit.gov.cn/" target="_blank" class="footer-link">
+                        晋ICP备2024037840号-1
+                    </a>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // 当前选中的天数
+        let currentDays = 0;
+        
+        // 页面加载完成后获取Bing壁纸数据
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchBingWallpaper(currentDays);
+            
+            // 日期选择按钮事件
+            document.querySelectorAll('.date-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // 移除所有按钮的active类
+                    document.querySelectorAll('.date-btn').forEach(b => {
+                        b.classList.remove('active');
+                    });
+                    
+                    // 为当前按钮添加active类
+                    this.classList.add('active');
+                    
+                    // 更新当前天数
+                    currentDays = parseInt(this.dataset.days);
+                    
+                    // 重新获取数据
+                    fetchBingWallpaper(currentDays);
+                });
+            });
+            
+            // 显示调试信息按钮
+            document.getElementById('showJsonBtn').addEventListener('click', function() {
+                const apiInfo = document.getElementById('apiInfo');
+                const jsonData = document.getElementById('jsonData');
+                
+                if (apiInfo.style.display === 'none') {
+                    jsonData.textContent = JSON.stringify(window.bingData, null, 2);
+                    apiInfo.style.display = 'block';
+                    this.innerHTML = '<i class="fas fa-code"></i> 隐藏API数据';
+                } else {
+                    apiInfo.style.display = 'none';
+                    this.innerHTML = '<i class="fas fa-code"></i> 显示API数据';
+                }
+            });
+            
+            // 分辨率按钮事件
+            document.querySelectorAll('.resolution-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // 移除所有按钮的active类
+                    document.querySelectorAll('.resolution-btn').forEach(b => {
+                        b.classList.remove('active');
+                    });
+                    
+                    // 为当前按钮添加active类
+                    this.classList.add('active');
+                    
+                    // 更新图片分辨率
+                    if (window.currentImageData) {
+                        updateImageResolution(this.dataset.resolution);
+                    }
+                });
+            });
+            
+            // 下载按钮事件
+            document.getElementById('downloadBtn').addEventListener('click', function() {
+                if (window.currentImageUrl) {
+                    const link = document.createElement('a');
+                    link.href = window.currentImageUrl;
+                    link.download = `bing-wallpaper-${window.currentImageDate || new Date().toISOString().split('T')[0]}.jpg`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                }
+            });
+        });
+        
+        // 通过PHP代理获取Bing壁纸数据
+        function fetchBingWallpaper(days) {
+            // 显示加载状态
+            document.getElementById('loading').style.display = 'flex';
+            document.getElementById('content').classList.remove('loaded');
+            document.getElementById('successMessage').style.display = 'none';
+            document.getElementById('errorMessage').style.display = 'none';
+            
+            // 使用PHP代理脚本
+            const proxyUrl = 'bingimg.php';
+            
+            // 添加时间戳避免缓存
+            const timestamp = new Date().getTime();
+            const urlWithParams = `${proxyUrl}?days=${days}&_=${timestamp}`;
+            
+            fetch(urlWithParams)
+                .then(response => {
+                    // 首先检查响应状态
+                    if (!response.ok) {
+                        throw new Error(`HTTP错误! 状态: ${response.status}`);
+                    }
+                    
+                    // 获取响应文本，以便在JSON解析失败时查看原始内容
+                    return response.text().then(text => {
+                        // 记录调试信息
+                        document.getElementById('debugInfo').textContent = 
+                            `代理响应状态: ${response.status}\n请求天数: ${days}\n响应内容:\n${text.substring(0, 500)}...`;
+                        
+                        // 尝试解析为JSON
+                        try {
+                            const data = JSON.parse(text);
+                            
+                            // 检查是否有错误字段
+                            if (data.error) {
+                                throw new Error(data.message || 'PHP代理返回错误');
+                            }
+                            
+                            return data;
+                        } catch (e) {
+                            // 如果不是有效的JSON，抛出错误并包含原始文本
+                            throw new Error(`无效的JSON响应: ${e.message}\n响应内容: ${text.substring(0, 200)}`);
+                        }
+                    });
+                })
+                .then(data => {
+                    // 显示成功消息
+                    document.getElementById('successMessage').style.display = 'block';
+                    
+                    // 隐藏加载提示，显示内容
+                    setTimeout(() => {
+                        document.getElementById('loading').style.display = 'none';
+                        document.getElementById('content').classList.add('loaded');
+                        
+                        // 处理获取到的数据
+                        updatePageWithData(data, days);
+                    }, 500);
+                })
+                .catch(error => {
+                    console.error('通过PHP代理获取数据时出错:', error);
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('errorMessage').style.display = 'block';
+                    document.getElementById('errorMessage').innerHTML = 
+                        `<i class="fas fa-exclamation-triangle"></i> <strong>获取Bing壁纸数据失败:</strong><br>${error.message}`;
+                    
+                    // 显示调试信息
+                    document.getElementById('debugInfo').style.display = 'block';
+                });
+        }
+        
+        // 使用获取的数据更新页面
+        function updatePageWithData(data, days) {
+            // 检查数据是否有效
+            if (!data || !data.images || !data.images[0]) {
+                throw new Error('API返回的数据格式不正确');
+            }
+            
+            // 从数据中提取图片信息
+            const imageInfo = data.images[0];
+            
+            // 格式化日期
+            function formatDate(dateStr) {
+                const year = dateStr.substring(0, 4);
+                const month = dateStr.substring(4, 6);
+                const day = dateStr.substring(6, 8);
+                return `${year}-${month}-${day}`;
+            }
+            
+            // 计算显示日期
+            function getDisplayDate(dateStr, daysAgo) {
+                const date = new Date(
+                    parseInt(dateStr.substring(0, 4)),
+                    parseInt(dateStr.substring(4, 6)) - 1,
+                    parseInt(dateStr.substring(6, 8))
+                );
+                
+                // 根据daysAgo调整显示文本
+                let dayText = '';
+                if (daysAgo === 0) dayText = '今天';
+                else if (daysAgo === 1) dayText = '昨天';
+                else if (daysAgo === 2) dayText = '前天';
+                else dayText = `${daysAgo}天前`;
+                
+                return `${dayText} (${formatDate(dateStr)})`;
+            }
+            
+            // 使用生成的图片URL或构建URL
+            let imageUrl;
+            if (data.generatedImageUrl) {
+                imageUrl = data.generatedImageUrl;
+            } else if (imageInfo.urlbase) {
+                imageUrl = 'https://cn.bing.com' + imageInfo.urlbase + '_UHD.jpg';
+            } else if (imageInfo.url) {
+                imageUrl = 'https://cn.bing.com' + imageInfo.url;
+            } else {
+                throw new Error('API返回的数据中没有图片URL信息');
+            }
+            
+            // 存储当前图片数据
+            window.currentImageData = imageInfo;
+            window.currentImageUrl = imageUrl;
+            window.currentImageDate = formatDate(imageInfo.enddate);
+            
+            // 更新页面内容
+            document.getElementById('bingImage').src = imageUrl;
+            document.getElementById('imageTitle').textContent = imageInfo.title || '无标题';
+            document.getElementById('imageCopyright').textContent = imageInfo.copyright || '无版权信息';
+            
+            document.getElementById('currentDateDisplay').textContent = getDisplayDate(imageInfo.enddate, days);
+            document.getElementById('infoTitle').textContent = imageInfo.title || '无标题';
+            document.getElementById('infoDate').textContent = formatDate(imageInfo.enddate);
+            document.getElementById('infoCopyright').textContent = imageInfo.copyright || '无版权信息';
+            document.getElementById('infoDesc').textContent = imageInfo.copyright || '无描述信息';
+            document.getElementById('infoUrl').textContent = imageUrl;
+            
+            // 存储原始数据用于显示JSON
+            window.bingData = data;
+            
+            // 查看原图按钮
+            document.getElementById('viewImageBtn').href = imageUrl;
+        }
+        
+        // 更新图片分辨率
+        function updateImageResolution(resolution) {
+            const baseUrl = 'https://cn.bing.com';
+            let newUrl;
+            
+            if (resolution === 'UHD') {
+                newUrl = baseUrl + window.currentImageData.urlbase + '_UHD.jpg';
+            } else if (resolution === '1920x1080') {
+                newUrl = baseUrl + window.currentImageData.urlbase + '_1920x1080.jpg';
+            }else if (resolution === '1080x1920') {
+                newUrl = baseUrl + window.currentImageData.urlbase + '_1080x1920.jpg';
+            } else if (resolution === '1366x768') {
+                newUrl = baseUrl + window.currentImageData.urlbase + '_1366x768.jpg';
+            }
+            
+            if (newUrl) {
+                document.getElementById('bingImage').src = newUrl;
+                document.getElementById('viewImageBtn').href = newUrl;
+                document.getElementById('infoUrl').textContent = newUrl;
+                window.currentImageUrl = newUrl;
+            }
+        }
+    </script>
+</body>
+</html>
