@@ -10,4 +10,4 @@
 
 下载后可以直接部署在服务器
 
-![Image text]([https://github.com/snakeyuna/www.bingimg.xyz/blob/6fb15a485e8865288e78e0b43872b613f29d25c7/schematic%20diagra/1.png]
+![Image text][(https://github.com/snakeyuna/www.bingimg.xyz/blob/4422fcb238b4e9dadc5e053d488166397a8dd152/img/1.png)]
