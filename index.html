@@ -93,7 +93,7 @@
             border: 2px solid rgba(255, 255, 255, 0.3);
             border-radius: 8px;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.3 ease;
             font-weight: bold;
         }
         
@@ -126,7 +126,7 @@
             border: 5px solid rgba(30, 87, 153, 0.2);
             border-radius: 50%;
             border-top-color: #1e5799;
-            animation: spin 1s ease-in-out infinite;
+            animation: spin 1 ease-in-out infinite;
             margin-bottom: 20px;
         }
         
@@ -141,7 +141,7 @@
             margin-bottom: 40px;
             opacity: 0;
             transform: translateY(20px);
-            transition: opacity 0.5s ease, transform 0.5s ease;
+            transition: opacity 0.5 ease, transform 0.5 ease;
         }
         
         .content.loaded {
@@ -160,7 +160,7 @@
             overflow: hidden;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
             background-color: #fff;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            transition: transform 0.3 ease, box-shadow 0.3 ease;
         }
         
         .image-container:hover {
@@ -172,7 +172,7 @@
             width: 100%;
             height: auto;
             display: block;
-            transition: transform 0.5s ease;
+            transition: transform 0.5 ease;
         }
         
         .image-container:hover img {
@@ -211,7 +211,7 @@
             padding: 25px;
             box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
             height: 100%;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            transition: transform 0.3 ease, box-shadow 0.3 ease;
         }
         
         .info-card:hover {
@@ -239,7 +239,7 @@
             align-items: flex-start;
             padding: 10px;
             border-radius: 8px;
-            transition: background-color 0.2s;
+            transition: background-color 0.2;
         }
         
         .info-item:hover {
@@ -266,7 +266,7 @@
             padding: 25px;
             box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
             margin-bottom: 30px;
-            transition: all 0.3s ease;
+            transition: all 0.3 ease;
         }
         
         .api-info h2 {
@@ -430,7 +430,7 @@
             border-radius: 4px;
             font-size: 0.85rem;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.2;
         }
         
         .resolution-btn:hover {
@@ -592,14 +592,6 @@
             <div class="footer-content">
                 <p>本页面数据来源于 Bing 每日壁纸 API | 通过PHP代理获取 | 仅用于学习和演示目的</p>
                 <p>© 2025 Bing壁纸历史查看器 | 支持查看过去7天壁纸</p>
-                <p style="display: flex; gap: 20px;">
-                    <a href="https://github.com/snakeyuna" target="_blank" class="footer-link">
-                        我的GitHub
-                    </a>
-                    <a href="./rustdesk/rustdesk.exe" target="_blank" class="footer-link">
-                        RustDesk
-                    </a>
-                </p>
             </div>
         </footer>
     </div>
